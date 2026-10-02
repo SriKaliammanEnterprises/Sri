@@ -1401,11 +1401,7 @@ function shopProductCards(){
 window.shopSearch = () => { window._shq = $('shq').value; $('shgrid').innerHTML = shopProductCards(); };
 window.setShopCat = (c) => { shopCat = c; renderShop(); };
 window.shopPlus = (id) => {
-  const p = DB.products.find(x => String(x.id) === String(id));
-  if(!p) return;
-  const defaultUnit = Object.keys(p.units || {Piece:1})[0];
-  shopCart[id] = shopCart[id] || {q:0, unit: defaultUnit};
-  if(!shopCart[id].unit) shopCart[id].unit = defaultUnit;
+  shopCart[id] = shopCart[id] || {q:0, unit:'Piece'};
   shopCart[id].q++;
   localStorage.setItem('shop_cart', JSON.stringify(shopCart));
   updateSidebarCartBadge();
@@ -1429,17 +1425,7 @@ window.shopMinus = (id) => {
     shopCartBar();
   }
 };
-window.changeCartUnit = (id, unit) => {
-  shopCart[id] = shopCart[id] || {q:0};
-  shopCart[id].unit = unit;
-  localStorage.setItem('shop_cart', JSON.stringify(shopCart));
-  if(shopTab === 'cart'){
-    document.getElementById('shopContent').innerHTML = renderShopCartContent();
-  } else {
-    updateCardQty(id);
-    shopCartBar();
-  }
-};
+window.changeCartUnit = () => {};  // Not used anymore
 
 function updateCardQty(id){
   const p = DB.products.find(x => String(x.id) === String(id));
