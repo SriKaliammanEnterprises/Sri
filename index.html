@@ -1145,7 +1145,7 @@ function renderShopCartContent(){
         ${items.map(x=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-soft)">
           <div style="flex:1">
             <div style="font-weight:700;font-size:14px">${x.p.name}</div>
-            <div class="muted" style="font-size:12px">${x.q} × ${money(x.price)} ${x.p.mrp > x.price ? `<s style="color:var(--muted)">MRP ${money(x.p.mrp)}</s>` : ''} = ${money(x.total)}</div>
+            <div class="muted" style="font-size:12px">${x.q} × ${money(x.price)}${x.p.mrp > 0 ? ` • MRP ${money(x.p.mrp)}` : ''} = ${money(x.total)}</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             <div class="qty-control" style="width:120px"><button class="qty-btn" onclick="shopMinus('${x.p.id}')">−</button><div class="qty-count">${x.q}</div><button class="qty-btn" onclick="shopPlus('${x.p.id}')">+</button></div>
@@ -1232,7 +1232,7 @@ function renderShopOrdersContent(){
         </div>
         <div style="background:var(--bg-soft);border-radius:12px;padding:12px 14px">
           ${(o.items||[]).map(it=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12.5px;border-bottom:1px dashed var(--border)">
-            <span style="flex:1">${it.name}${it.mrp > it.price ? ` <s style="color:var(--muted);font-size:11px">MRP ${money(it.mrp)}</s>` : ''}</span><span class="muted" style="margin:0 10px">× ${it.qty}</span><b>${money(it.total)}</b>
+            <span style="flex:1">${it.name}${it.mrp > 0 ? ` <span style="color:var(--muted);font-size:11px">(MRP ${money(it.mrp)})</span>` : ''}</span><span class="muted" style="margin:0 10px">× ${it.qty}</span><b>${money(it.total)}</b>
           </div>`).join('')}
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
@@ -1376,7 +1376,7 @@ const discountPct = 0;
         <div class="prod-pack">${p.pack||''}</div>
         <div class="prod-price-row">
   <span class="prod-price">${money(displayPrice)}</span>
-  ${mrp > 0 && mrp > displayPrice ? `<span class="prod-price-old">MRP ${money(mrp)}</span>` : ''}
+  ${mrp > 0 ? `<span class="prod-price-old" style="text-decoration:none;color:var(--muted)">MRP ${money(mrp)}</span>` : ''}
 </div>
         ${unitList.length > 1 ? `
           <div style="margin-bottom:6px">
