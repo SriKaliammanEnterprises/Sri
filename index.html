@@ -591,18 +591,17 @@ function viewProducts(){
     </div>
     <div class="card">
       <div class="tbl-wrap"><table class="tbl">
-        <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Units</th><th>Stock</th><th style="text-align:right">Actions</th></tr></thead>
+        <thead><tr><th>Product</th><th>Category</th><th>MRP</th><th>Price</th><th>Stock</th><th style="text-align:right">Actions</th></tr></thead>
         <tbody>${list.map(p=>{
-          const unitCount = Object.keys(p.units||{Piece:1}).length;
           return `<tr>
             <td><div style="display:flex;align-items:center;gap:12px">
               ${p.img ? `<img src="${p.img}" style="width:44px;height:44px;border-radius:12px;object-fit:cover" onerror="this.style.display='none'">` : `<div style="width:44px;height:44px;border-radius:12px;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;font-size:20px">📦</div>`}
               <div><div style="font-weight:700;font-size:13.5px">${p.name}</div><div class="muted" style="font-size:11.5px">${p.pack||''}</div></div>
             </div></td>
             <td><span class="tag tag-delivered">${CATEGORY_EMOJI[p.cat]||''} ${p.cat}</span></td>
-            <td><b>${money(p.price)}</b><div class="muted" style="font-size:11px">/piece</div></td>
-            <td><span class="tag tag-approved">${unitCount} unit${unitCount>1?'s':''}</span></td>
-            <td><b style="color:${(p.stock||0)<20?'var(--danger)':'var(--primary)'}">${p.stock||0}</b></td>
+<td>${p.mrp ? `<s style="color:var(--muted)">${money(p.mrp)}</s>` : '-'}</td>
+<td><b>${money(p.price)}</b></td>
+<td><b style="color:${(p.stock||0)<20?'var(--danger)':'var(--primary)'}">${p.stock||0}</b></td>
             <td style="text-align:right;white-space:nowrap">
               <button class="btn btn-gray btn-sm" onclick="editProduct('${p.id}')">Edit</button>
               <button class="btn btn-danger btn-sm" onclick="delProduct('${p.id}')">Del</button>
@@ -615,10 +614,8 @@ function viewProducts(){
 }
 function viewProductForm(id){
   const p = id ? DB.products.find(x=>x.id===id) : {
-    id:0,name:'',price:0,pack:'',cat:DB.categories[0],img:'',stock:0,sku:'',
-    units:{Piece:1,Box:12,Case:48,Carton:96}
+    id:0,name:'',price:0,mrp:0,pack:'',cat:DB.categories[0],img:'',stock:0,sku:''
   };
-  const units = p.units || {Piece:1,Box:12,Case:48,Carton:96};
   return `
     <div class="card" style="max-width:720px">
       <h3 style="margin-bottom:16px">${id?'✏️ Edit':'➕ Add'} Product</h3>
@@ -627,25 +624,14 @@ function viewProductForm(id){
         <div class="field"><label>SKU</label><input id="f_sku" value="${p.sku||''}"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Price per Piece (₹) *</label><input id="f_price" type="number" value="${p.price}"></div>
-        <div class="field"><label>Pack Size (e.g. 800 g)</label><input id="f_pack" value="${p.pack}"></div>
+        <div class="field"><label>MRP (₹)</label><input id="f_mrp" type="number" value="${p.mrp||''}" placeholder="Original price"></div>
+        <div class="field"><label>Selling Price (₹) *</label><input id="f_price" type="number" value="${p.price}"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Category *</label><select id="f_cat">${DB.categories.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div>
-        <div class="field"><label>Stock (total pieces)</label><input id="f_stock" type="number" value="${p.stock||0}"></div>
+        <div class="field"><label>Pack Size (e.g. 800 g)</label><input id="f_pack" value="${p.pack}"></div>
+        <div class="field"><label>Stock (in pieces)</label><input id="f_stock" type="number" value="${p.stock||0}"></div>
       </div>
-      <div style="background:var(--bg-soft);border-radius:12px;padding:14px;margin-bottom:16px">
-        <div style="font-weight:800;font-size:13px;margin-bottom:10px">📦 Pack Units</div>
-        <p class="muted" style="font-size:11.5px;margin-bottom:12px">Enter how many pieces in each unit. Leave blank or 0 if not sold in that unit.</p>
-        <div class="form-row">
-          <div class="field"><label>Piece</label><input id="u_piece" type="number" value="${units.Piece||1}" min="1"></div>
-          <div class="field"><label>Box (pieces per box)</label><input id="u_box" type="number" value="${units.Box||''}" placeholder="e.g. 12"></div>
-        </div>
-        <div class="form-row">
-          <div class="field"><label>Case (pieces per case)</label><input id="u_case" type="number" value="${units.Case||''}" placeholder="e.g. 48"></div>
-          <div class="field"><label>Carton (pieces per carton)</label><input id="u_carton" type="number" value="${units.Carton||''}" placeholder="e.g. 96"></div>
-        </div>
-      </div>
+      <div class="field"><label>Category *</label><select id="f_cat">${DB.categories.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div>
       <div class="field"><label>Image URL</label><input id="f_img" value="${p.img||''}" placeholder="https://..."></div>
       <div style="display:flex;gap:10px;margin-top:8px">
         <button class="btn btn-primary" onclick="saveProduct('${p.id||''}')">💾 Save</button>
@@ -659,15 +645,16 @@ window.editProduct = (id) => {
   setTimeout(() => { $('content').innerHTML = viewProductForm(id); }, 50);
 };
 window.saveProduct = async function(id){
-  const units = { Piece: +$('u_piece').value || 1 };
-  const box = +$('u_box').value; if(box > 0) units.Box = box;
-  const cs = +$('u_case').value; if(cs > 0) units.Case = cs;
-  const ct = +$('u_carton').value; if(ct > 0) units.Carton = ct;
   const data = {
-    name: $('f_name').value.trim(), sku: $('f_sku').value.trim(),
-    price: +$('f_price').value, pack: $('f_pack').value.trim(),
-    cat: $('f_cat').value, stock: +$('f_stock').value,
-    img: $('f_img').value.trim(), units: units
+    name: $('f_name').value.trim(),
+    sku: $('f_sku').value.trim(),
+    mrp: +$('f_mrp').value || 0,
+    price: +$('f_price').value,
+    pack: $('f_pack').value.trim(),
+    cat: $('f_cat').value,
+    stock: +$('f_stock').value,
+    img: $('f_img').value.trim(),
+    units: { Piece: 1 }
   };
   if(!data.name || !data.price){ toast('⚠️ Name and price required'); return; }
   const existing = id && id !== '0' ? DB.products.find(x=>x.id===id) : null;
@@ -1458,7 +1445,7 @@ function updateCardQty(id){
   const p = DB.products.find(x => String(x.id) === String(id));
   if(!p) return;
   
-  // Update main product grid card if visible
+  // Update main product grid card
   const card = document.querySelector('.prod[data-id="' + id + '"]');
   if(card){
     const qty = shopCart[id]?.q || 0;
@@ -1473,11 +1460,9 @@ function updateCardQty(id){
         qc.innerHTML = '<button class="qty-add" onclick="shopPlus(\'' + id + '\')">ADD +</button>';
       }
     }
-    const us = card.querySelector('select[data-unit-for]');
-    if(us && shopCart[id]?.unit) us.value = shopCart[id].unit;
   }
   
-  // Update Buy Again carousel item if visible
+  // Update Buy Again carousel
   const carouselItem = document.querySelector('.carousel-item[data-id="' + id + '"]');
   if(carouselItem){
     const qty = shopCart[id]?.q || 0;
