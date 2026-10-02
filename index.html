@@ -1145,7 +1145,7 @@ function renderShopCartContent(){
         ${items.map(x=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-soft)">
           <div style="flex:1">
             <div style="font-weight:700;font-size:14px">${x.p.name}</div>
-            <div class="muted" style="font-size:12px">${x.q} × ${money(x.price)} = ${money(x.total)}</div>
+            <div class="muted" style="font-size:12px">${x.q} × ${money(x.price)} ${x.p.mrp > x.price ? `<s style="color:var(--muted)">MRP ${money(x.p.mrp)}</s>` : ''} = ${money(x.total)}</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             <div class="qty-control" style="width:120px"><button class="qty-btn" onclick="shopMinus('${x.p.id}')">−</button><div class="qty-count">${x.q}</div><button class="qty-btn" onclick="shopPlus('${x.p.id}')">+</button></div>
@@ -1232,7 +1232,7 @@ function renderShopOrdersContent(){
         </div>
         <div style="background:var(--bg-soft);border-radius:12px;padding:12px 14px">
           ${(o.items||[]).map(it=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12.5px;border-bottom:1px dashed var(--border)">
-            <span style="flex:1">${it.name}</span><span class="muted" style="margin:0 10px">× ${it.qty}</span><b>${money(it.total)}</b>
+            <span style="flex:1">${it.name}${it.mrp > it.price ? ` <s style="color:var(--muted);font-size:11px">MRP ${money(it.mrp)}</s>` : ''}</span><span class="muted" style="margin:0 10px">× ${it.qty}</span><b>${money(it.total)}</b>
           </div>`).join('')}
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
@@ -1356,9 +1356,10 @@ function shopProductCards(){
   const shop = DB.shops.find(s=>s.mobile===shopAccount.mobile);
   return list.map(p=>{
     const customPrice = shop?.customPrices?.[p.id];
-    const price = customPrice ?? p.price;
-    const hasDiscount = customPrice && customPrice < p.price;
-    const discountPct = hasDiscount ? Math.round(((p.price - customPrice) / p.price) * 100) : 0;
+const displayPrice = customPrice ?? p.price;
+const mrp = p.mrp || 0;
+const hasDiscount = false;
+const discountPct = 0;
     const outOfStock = (p.stock||0) <= 0;
     const qty = shopCart[p.id]?.q || 0;
     const unitList = Object.keys(p.units || {Piece:1});
@@ -1367,7 +1368,6 @@ function shopProductCards(){
       <div class="prod-img-wrap">
         <div class="prod-badges">
           ${outOfStock ? '<span class="prod-badge out">OUT OF STOCK</span>' : ''}
-          ${hasDiscount && !outOfStock ? `<span class="prod-badge">${discountPct}% OFF</span>` : ''}
         </div>
         ${p.img ? `<img src="${p.img}" onerror="this.outerHTML='<div class=noimg>📦</div>'">` : '<div class="noimg">📦</div>'}
       </div>
@@ -1375,9 +1375,9 @@ function shopProductCards(){
         <div class="prod-name">${p.name}</div>
         <div class="prod-pack">${p.pack||''}</div>
         <div class="prod-price-row">
-          <span class="prod-price">${money(price)}</span>
-          ${hasDiscount ? `<span class="prod-price-old">${money(p.price)}</span>` : ''}
-        </div>
+  <span class="prod-price">${money(displayPrice)}</span>
+  ${mrp > 0 && mrp > displayPrice ? `<span class="prod-price-old">MRP ${money(mrp)}</span>` : ''}
+</div>
         ${unitList.length > 1 ? `
           <div style="margin-bottom:6px">
             <select data-unit-for="${p.id}" onchange="changeCartUnit('${p.id}', this.value)" style="width:100%;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px;font-weight:700;outline:0">
@@ -1681,7 +1681,7 @@ window.shopPlaceOrder = async function(){
   const total = items.reduce((s,x)=>s+x.total,0);
   const orderId = "FL" + Date.now().toString().slice(-6);
   const order = { id: orderId, shopName: shopAccount.name, mobile: shopAccount.mobile, date: new Date().toISOString(),
-    items: items.map(x=>({pid:x.p.id, name:x.p.name, qty:x.q, price:x.price, total:x.total})), total, status: 'New', paymentStatus: 'Unpaid' };
+    items: items.map(x=>({pid:x.p.id, name:x.p.name, qty:x.q, price:x.price, mrp:x.p.mrp||0, total:x.total})), total, status: 'New', paymentStatus: 'Unpaid' };
   await saveOrderDoc(order);
   let shop = DB.shops.find(s=>s.mobile===shopAccount.mobile);
   if(shop) await saveShopDoc({...shop, outstanding: (shop.outstanding||0) + total});
