@@ -628,11 +628,11 @@ function viewDashboard(){
 
   return `
     <div class="stats">
-      <div class="stat green"><div class="icon-bg">🛒</div><div class="lbl">Today's Orders</div><div class="num">${todayOrders.length}</div><div class="sub">${todayOrders.length>0?'Active':'Waiting'}</div></div>
-      <div class="stat blue"><div class="icon-bg">💰</div><div class="lbl">Today's Sales</div><div class="num">${money(todaySales)}</div><div class="sub">Revenue</div></div>
-      <div class="stat ${pending?'orange':'green'}"><div class="icon-bg">🔔</div><div class="lbl">Pending</div><div class="num">${pending}</div><div class="sub">${pending?'Action needed':'All clear'}</div></div>
-      <div class="stat ${outstanding?'red':'green'}"><div class="icon-bg">⚠️</div><div class="lbl">Outstanding</div><div class="num">${money(outstanding)}</div><div class="sub">All shops</div></div>
-    </div>
+  <div class="stat green" style="cursor:pointer" onclick="go('orders')"><div class="icon-bg">🛒</div><div class="lbl">Today's Orders</div><div class="num">${todayOrders.length}</div><div class="sub">${todayOrders.length>0?'Tap to view':'Waiting'}</div></div>
+  <div class="stat blue" style="cursor:pointer" onclick="go('rep-daily')"><div class="icon-bg">💰</div><div class="lbl">Today's Sales</div><div class="num">${money(todaySales)}</div><div class="sub">Tap to view report</div></div>
+  <div class="stat ${pending?'orange':'green'}" style="cursor:pointer" onclick="go('orders')"><div class="icon-bg">🔔</div><div class="lbl">Pending</div><div class="num">${pending}</div><div class="sub">${pending?'Tap to view':'All clear'}</div></div>
+  <div class="stat ${outstanding?'red':'green'}" style="cursor:pointer" onclick="go('outstanding')"><div class="icon-bg">⚠️</div><div class="lbl">Outstanding</div><div class="num">${money(outstanding)}</div><div class="sub">Tap to view</div></div>
+</div>
     ${pendingShops ? `<div class="card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);margin-bottom:20px">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:12px">
