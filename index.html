@@ -21,6 +21,107 @@
   --r-sm:8px;--r:12px;--r-md:16px;--r-lg:20px;--r-xl:24px;--r-2xl:28px;--r-full:999px;
   --sidebar-w:260px;--transition:200ms cubic-bezier(0.4,0,0.2,1);
 }
+/* ═══════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════ */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pop{0%{transform:scale(0.9)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes bounceIn{0%{opacity:0;transform:scale(0.85)}60%{opacity:1;transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{box-shadow:0 0 0 10px rgba(16,185,129,0)}}
+@keyframes slideUp{from{transform:translateY(120px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+
+/* Page Load Fade */
+.card{animation:fadeIn 0.4s ease}
+.prod{animation:fadeInUp 0.4s ease}
+.stat{animation:fadeInUp 0.5s ease}
+
+/* Sidebar Animation */
+.sidebar{animation:slideInLeft 0.3s ease}
+.sidebar-brand .icon{animation:float 3s ease-in-out infinite}
+.menu a{transition:all 0.2s ease}
+.menu a:hover{transform:translateX(3px)}
+.menu a.active{animation:slideInLeft 0.25s ease}
+
+/* Modals */
+.modal-box{animation:bounceIn 0.3s ease}
+
+/* Toasts */
+.toast{animation:bounceIn 0.3s ease}
+
+/* Cart Bar */
+.cartbar{animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1)}
+.cartbar .cart-count{animation:pulse 0.5s ease}
+
+/* Button Interactions */
+.btn{transition:all 0.2s ease}
+.btn:active{transform:scale(0.96)}
+.qty-btn{transition:all 0.15s ease}
+.qty-btn:active{transform:scale(0.88)}
+.qty-add{transition:all 0.2s ease}
+.qty-add:active{transform:scale(0.95)}
+.qty-add:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,0.35)}
+
+/* Badge Animations */
+.badge-n{animation:pop 0.4s ease}
+.prod-badge{animation:fadeInDown 0.4s ease}
+
+/* Image Zoom */
+.prod:hover img{transform:scale(1.08)}
+.prod img{transition:transform 0.4s ease}
+.carousel-item:hover img{transform:scale(1.08)}
+.carousel-item img{transition:transform 0.4s ease}
+
+/* Chips */
+.chip{transition:all 0.2s ease}
+.chip:hover{transform:translateY(-2px)}
+
+/* Product Cards */
+.prod{transition:transform 0.25s ease,box-shadow 0.25s ease}
+.prod:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+
+/* Stat Cards (Dashboard) */
+.stat{transition:transform 0.25s ease,box-shadow 0.25s ease}
+.stat:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.12)}
+.stat .num{animation:fadeIn 0.6s ease}
+
+/* Table Rows */
+.tbl tr{transition:background 0.15s ease}
+
+/* Order Cards */
+.order-card{transition:transform 0.2s ease,box-shadow 0.2s ease}
+.order-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.06)}
+
+/* Loading Spinner Enhancement */
+.loader{animation:float 2s ease-in-out infinite}
+
+/* Theme Toggle */
+.theme-toggle{transition:all 0.2s ease}
+.theme-toggle:active{transform:scale(0.97)}
+
+/* Icon Pulse for Notifications */
+.badge-n{animation:pop 0.4s ease,glow 2s ease-in-out infinite}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar-thumb{transition:background 0.2s ease}
+
+/* Hover Row Links */
+.row-link{transition:background 0.2s ease,padding-left 0.2s ease}
+.row-link:hover{background:var(--bg-soft);padding-left:24px}
+
+/* Theme Toggle Icon Spin */
+.theme-toggle span:first-child{transition:transform 0.4s ease}
+.theme-toggle:hover span:first-child{transform:rotate(20deg)}
+
+/* Notification Badge Wiggle */
+.badge-n{animation:wiggle 2s ease-in-out infinite}
 [data-theme="dark"]{
   --bg:#0a0f1a;--bg-soft:#111827;--card:#1e293b;--border:#334155;--border-soft:#1e293b;
   --text:#f1f5f9;--text-soft:#cbd5e1;--muted:#94a3b8;--muted-soft:#64748b;
