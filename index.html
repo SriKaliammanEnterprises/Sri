@@ -510,6 +510,12 @@ window.doAdminLogin = () => {
     renderAdmin();
   } else toast('❌ Wrong PIN');
 };
+  
+  window.forgotAdminPin = function(){
+  const contact = DB.settings.whatsapp || 'the distributor';
+  alert('Contact admin to reset PIN.\n\nWhatsApp: ' + contact);
+};
+  
 window.logout = () => {
   sessionStorage.removeItem('dist_admin');
   loggedIn = false;
