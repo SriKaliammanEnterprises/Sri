@@ -495,7 +495,9 @@ function renderLogin(){
           <input id="pin" type="password" placeholder="Enter PIN" inputmode="numeric" style="text-align:center;letter-spacing:8px;font-size:18px;font-weight:800">
         </div>
         <button class="btn btn-primary btn-block btn-lg" onclick="doAdminLogin()">Login →</button>
-        <p class="muted" style="margin-top:18px;font-size:11.5px">Default PIN: 1234</p>
+<p style="text-align:center;margin-top:14px;font-size:13px">
+  <a onclick="forgotAdminPin()" style="color:var(--primary);font-weight:700;cursor:pointer">Forgot PIN?</a>
+</p>
       </div>
     </div>`;
 }
