@@ -410,7 +410,7 @@ async function loadAllData(){
     getDoc(doc(db, "settings", "main")),
     getDocs(collection(db, "accounts"))
   ]);
-  DB.products = pSnap.docs.map(d => ({id: d.id, ...d.data()}));
+  DB.products = pSnap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.name||'').localeCompare(b.name||''));
   DB.shops = sSnap.docs.map(d => ({id: d.id, ...d.data()}));
   DB.orders = oSnap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (b.date||'').localeCompare(a.date||''));
   DB.accounts = aSnap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -462,7 +462,7 @@ function startRealtime(){
     }
   });
   onSnapshot(collection(db, "products"), (snap) => {
-    DB.products = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    DB.products = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.name||'').localeCompare(b.name||''));
     if(!isAdminView() && shopAccount) renderShop();
   });
   onSnapshot(collection(db, "accounts"), (snap) => {
@@ -684,7 +684,7 @@ function viewDashboard(){
 
 function viewProducts(){
   const q = (window._pq||'').toLowerCase();
-  const list = DB.products.filter(p => !q || (p.name+p.cat+(p.sku||'')).toLowerCase().includes(q));
+  const list = DB.products.filter(p => !q || (p.name+p.cat+(p.sku||'')).toLowerCase().includes(q)).sort((a,b) => (a.name||'').localeCompare(b.name||''));
   return `
     <div class="searchbar" style="margin-bottom:16px">
       <span class="search-icon">🔍</span>
@@ -1446,7 +1446,7 @@ function renderBuyAgain(){
 }
 
 function shopProductCards(){
-  let list = shopCat === 'All' ? DB.products : DB.products.filter(p=>p.cat===shopCat);
+  let list = shopCat === 'All' ? DB.products : DB.products.filter(p=>p.cat===shopCat); list = [...list].sort((a,b) => (a.name||'').localeCompare(b.name||''));
   const q = (window._shq||'').toLowerCase();
   if(q) list = list.filter(p => (p.name+(p.pack||'')+p.cat).toLowerCase().includes(q));
   if(!list.length) return '<div class="empty" style="grid-column:1/-1"><span class="ico">🔍</span><h3>No products found</h3></div>';
