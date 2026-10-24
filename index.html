@@ -825,7 +825,7 @@ function viewShops(){
   return `<div class="card">
     <div class="card-title"><h3>🏪 Shops (${DB.shops.length})</h3></div>
     <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>Shop</th><th>Mobile</th><th>Status</th><th>Pwd</th><th>Due</th><th>Limit</th><th style="text-align:right">Actions</th></tr></thead>
+      <thead><tr><th>Shop</th><th>Mobile</th><th>Status</th><th>Pwd</th><th>Due</th><th>CREDIT LIMIT</th><th style="text-align:right">Actions</th></tr></thead>
       <tbody>${DB.shops.map(s=>{
         const acc = DB.accounts.find(a => a.mobile === s.mobile);
         const status = acc?.status || 'Approved';
