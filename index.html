@@ -1205,7 +1205,7 @@ function renderShopShell(cartCount, myOrders, isDark){
         </div>
       </div>
             <nav class="menu">
-        ${!shopAccount ? `<a onclick="isGuest=false; renderShopAuth();" style="background:var(--primary-light);color:var(--primary-dark);margin-bottom:8px"><span class="ic">🔐</span>Login to Order</a>` : ''}
+        ${!shopAccount ? `<a onclick="window.exitGuestMode()" style="background:var(--primary-light);color:var(--primary-dark);margin-bottom:8px"><span class="ic">🔐</span>Login to Order</a>` : ''}
         <a class="${shopTab==='shop'?'active':''}" onclick="setShopTab('shop')"><span class="ic">🏠</span>Shop</a>
         <a class="${shopTab==='cart'?'active':''}" onclick="setShopTab('cart')" data-cart-link><span class="ic">🛒</span>My Cart ${cartCount?`<span class="badge-n">${cartCount}</span>`:''}</a>
         <a class="${shopTab==='me'&&!shopSubPage?'active':''}" onclick="setShopTab('me')"><span class="ic">👤</span>My Account</a>
@@ -1688,8 +1688,8 @@ function renderShopAuth(){
     <div class="auth-page"><div class="auth-box">
       <div class="auth-logo">🌿</div>
             <h2>${DB.settings.businessName}</h2>
-      <p style="text-align:center;margin-top:-10px;margin-bottom:16px">
-         <a onclick="isGuest=true; renderShop();" style="color:var(--primary);font-weight:700;cursor:pointer;font-size:13px">← Continue as Guest</a>
+          <p style="text-align:center;margin-top:-10px;margin-bottom:16px">
+         <a onclick="window.enterGuestMode()" style="color:var(--primary);font-weight:700;cursor:pointer;font-size:13px">← Continue as Guest</a>
       </p>
       <p class="sub">${isForgot?'Reset password':(isReset?'Verify identity':'Welcome! Login or register')}</p>
       ${(!isForgot && !isReset) ? `<div class="auth-tabs">
@@ -1728,6 +1728,15 @@ function renderShopAuth(){
     </div></div>`;
 }
 window.setAuthTab = (t) => { authTab = t; renderShopAuth(); };
+  window.enterGuestMode = function(){
+  isGuest = true;
+  shopTab = 'shop';
+  renderShop();
+};
+  window.exitGuestMode = function(){
+  isGuest = false;
+  renderShopAuth();
+};
 window.forgotStep1 = function(){
   const mobile = $('fg_mobile').value.trim();
   const msgBox = $('authMsg');
