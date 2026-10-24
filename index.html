@@ -1162,9 +1162,9 @@ window.saveSettings = async function(){
    SHOP OWNER APP
    ═══════════════════════════════════════════════════════════ */
 function renderShop(){
-  if(!shopAccount && !isGuest){ renderShopAuth(); return; }
-  
+  // Allow entry if not logged in (we removed the force-login check)
   const acc = shopAccount ? DB.accounts.find(a => a.mobile === shopAccount.mobile) : null;
+  
   if(acc && acc.status === 'Pending'){
     app().innerHTML = `<div class="auth-page"><div class="auth-box" style="text-align:center">
       <div class="auth-logo" style="background:linear-gradient(135deg,#f59e0b,#d97706)">⏳</div>
@@ -1175,7 +1175,7 @@ function renderShop(){
   }
 
   const cartCount = Object.keys(shopCart).length;
-  const myOrders = DB.orders.filter(o => o.mobile === shopAccount.mobile);
+  const myOrders = shopAccount ? DB.orders.filter(o => o.mobile === shopAccount.mobile) : [];
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
   app().innerHTML = renderShopShell(cartCount, myOrders, isDark);
@@ -1183,6 +1183,13 @@ function renderShop(){
   setTimeout(() => {
     const content = document.getElementById('shopContent');
     if(!content) return;
+    
+    // If trying to access "Me" or "Orders" without login, force Login page
+    if((shopTab === 'me' || shopSubPage === 'orders') && !shopAccount) {
+      renderShopAuth();
+      return;
+    }
+
     if(shopTab === 'cart'){ content.innerHTML = renderShopCartContent(); }
     else if(shopSubPage === 'orders'){ content.innerHTML = renderShopOrdersContent(); }
     else if(shopTab === 'me'){ content.innerHTML = renderShopMeContent(); }
@@ -1218,12 +1225,24 @@ function renderShopShell(cartCount, myOrders, isDark){
         </div>
 
         <!-- Right Side Actions -->
-        <div style="display:flex;align-items:center;gap:20px;font-size:14px">
-          ${userDisplay}
-          ${cartDisplay}
-          <a onclick="toggleTheme()" style="cursor:pointer;font-size:18px;color:var(--text)">${isDark?'☀️':'🌙'}</a>
-          ${shopAccount ? `<a onclick="shopLogout()" style="color:var(--danger);font-weight:700;cursor:pointer">Logout</a>` : ''}
-        </div>
+    <div style="display:flex;align-items:center;gap:20px;font-size:14px">
+      
+      <!-- Login / Profile -->
+      ${shopAccount 
+        ? `<span style="font-weight:700;color:var(--primary)">👤 ${shopAccount.name.split(' ')[0]}</span>`
+        : `<a onclick="renderShopAuth()" style="color:var(--text);font-weight:600;cursor:pointer">👤 Login</a>`
+      }
+
+      <!-- Cart (Always visible now) -->
+      <a onclick="setShopTab('cart')" style="color:var(--text);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;position:relative">
+        🛒 Cart 
+        ${cartCount ? `<span class="cart-num" style="background:var(--danger);color:#fff;font-size:10px;padding:2px 6px;border-radius:999px;font-weight:800">${cartCount}</span>` : ''}
+      </a>
+
+      <a onclick="toggleTheme()" style="cursor:pointer;font-size:18px;color:var(--text)">${isDark?'☀️':'🌙'}</a>
+      
+      ${shopAccount ? `<a onclick="shopLogout()" style="color:var(--danger);font-weight:700;cursor:pointer">Logout</a>` : ''}
+    </div>
 
       </div>
 
@@ -1536,12 +1555,7 @@ const discountPct = 0;
 window.shopSearch = () => { window._shq = $('shq').value; $('shgrid').innerHTML = shopProductCards(); };
 window.setShopCat = (c) => { shopCat = c; renderShop(); };
 window.shopPlus = (id) => {
-  if(!shopAccount) {
-    toast('Please login to add items to cart');
-    isGuest = false;
-    renderShopAuth();
-    return;
-  }
+  // Removed the "if(!shopAccount)" login block. Anyone can add.
   shopCart[id] = shopCart[id] || {q:0, unit:'Piece'};
   shopCart[id].q++;
   localStorage.setItem('shop_cart', JSON.stringify(shopCart));
