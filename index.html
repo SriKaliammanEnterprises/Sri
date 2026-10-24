@@ -463,7 +463,11 @@ function startRealtime(){
   });
   onSnapshot(collection(db, "products"), (snap) => {
     DB.products = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.name||'').localeCompare(b.name||''));
-    if(!isAdminView() && shopAccount) renderShop();
+    // Only re-render if we are on the shop page and NOT currently loading
+    if(!isAdminView() && document.getElementById('shopContent')) {
+      document.getElementById('shopContent').innerHTML = renderShopHomeContent();
+      if(shopTab === 'shop') shopCartBar();
+    }
   });
   onSnapshot(collection(db, "accounts"), (snap) => {
     DB.accounts = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -1162,8 +1166,8 @@ window.saveSettings = async function(){
    SHOP OWNER APP
    ═══════════════════════════════════════════════════════════ */
 function renderShop(){
+  // If user is logged in but Pending, show Pending screen
   const acc = shopAccount ? DB.accounts.find(a => a.mobile === shopAccount.mobile) : null;
-  
   if(acc && acc.status === 'Pending'){
     app().innerHTML = `<div class="auth-page"><div class="auth-box" style="text-align:center">
       <div class="auth-logo" style="background:linear-gradient(135deg,#f59e0b,#d97706)">⏳</div>
@@ -1173,12 +1177,7 @@ function renderShop(){
     return;
   }
 
-  // If not logged in, force the 'shop' tab
-  if(!shopAccount){
-    shopTab = 'shop';
-    shopSubPage = null;
-  }
-
+  // No login required to view the page
   const cartCount = Object.keys(shopCart).length;
   const myOrders = shopAccount ? DB.orders.filter(o => o.mobile === shopAccount.mobile) : [];
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -1189,6 +1188,12 @@ function renderShop(){
     const content = document.getElementById('shopContent');
     if(!content) return;
     
+    // Protect Account/Orders tabs if not logged in
+    if((shopTab === 'me' || shopSubPage === 'orders') && !shopAccount) {
+      renderShopAuth();
+      return;
+    }
+
     if(shopTab === 'cart'){ content.innerHTML = renderShopCartContent(); }
     else if(shopSubPage === 'orders'){ content.innerHTML = renderShopOrdersContent(); }
     else if(shopTab === 'me'){ content.innerHTML = renderShopMeContent(); }
@@ -1793,10 +1798,9 @@ window.shopRegisterSubmit = async function(){
   let shop = DB.shops.find(s => s.mobile === mobile);
   if(!shop){ await saveShopDoc({name, owner, mobile, address: addr, customPrices:{}, outstanding:0}); }
   else { await saveShopDoc({...shop, name, owner, address: addr}); }
-  localStorage.removeItem('shop_account');
+    localStorage.removeItem('shop_account');
   localStorage.removeItem('shop_cart');
-    isGuest = false;
-  shopAccount = { name: acc.name, mobile: acc.mobile };
+  shopAccount = { name: name, mobile: mobile };
   localStorage.setItem('shop_account', JSON.stringify(shopAccount));
   shopCart = {}; shopTab = 'shop'; shopSubPage = null;
   toast(status === 'Approved' ? '✅ Welcome!' : '✅ Submitted');
@@ -1814,7 +1818,6 @@ window.shopLoginSubmit = function(){
   if(acc.status === 'Rejected') return showErr('Account rejected');
   localStorage.removeItem('shop_account');
   localStorage.removeItem('shop_cart');
-    isGuest = false;
   shopAccount = { name: acc.name, mobile: acc.mobile };
   localStorage.setItem('shop_account', JSON.stringify(shopAccount));
   shopCart = {}; shopTab = 'shop'; shopSubPage = null;
