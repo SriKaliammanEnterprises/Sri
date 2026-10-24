@@ -491,7 +491,9 @@ function renderLogin(){
   app().innerHTML = `
     <div class="auth-page">
       <div class="auth-box" style="text-align:center">
-        <div class="auth-logo">🌿</div>
+        <div class="auth-logo" style="background:transparent;padding:0;box-shadow:none">
+  <img src="https://i.ibb.co/5g2x58jT/Sri-Kaliamman-FMCG-Brand-Banner.png" style="width:100%;height:100%;object-fit:contain">
+</div>
         <h2>${DB.settings.businessName}</h2>
         <p class="sub">Admin Dashboard</p>
         <div class="field">
@@ -562,11 +564,8 @@ function renderAdmin(){
     <div class="overlay" onclick="closeSidebar()"></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
-        <div class="icon">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
-    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
-  </svg>
+        <div class="icon" style="background:transparent;padding:0">
+  <img src="https://i.ibb.co/5g2x58jT/Sri-Kaliamman-FMCG-Brand-Banner.png" style="width:100%;height:100%;object-fit:contain;border-radius:var(--r)">
 </div>
         <div>
           <div class="name">${DB.settings.businessName}</div>
@@ -1240,7 +1239,10 @@ function renderShopShell(cartCount, myOrders, isDark){
     <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
   </svg>
 </div>
-          <h1 style="font-size:18px;font-weight:800;color:var(--primary)">Welcome to ${DB.settings.businessName}</h1>
+          <div style="display:flex;align-items:center;gap:10px">
+  <img src="https://i.ibb.co/5g2x58jT/Sri-Kaliamman-FMCG-Brand-Banner.png" style="width:36px;height:36px;object-fit:contain;border-radius:8px">
+  <h1 style="font-size:18px;font-weight:800;color:var(--primary)">Welcome to ${DB.settings.businessName}</h1>
+</div>
         </div>
 
         <!-- Right Side Actions -->
@@ -1711,7 +1713,9 @@ function renderShopAuth(){
   const isReset = authTab === 'reset';
   app().innerHTML = `
     <div class="auth-page"><div class="auth-box">
-      <div class="auth-logo">🌿</div>
+      <div class="auth-logo" style="background:transparent;padding:0;box-shadow:none">
+  <img src="https://i.ibb.co/5g2x58jT/Sri-Kaliamman-FMCG-Brand-Banner.png" style="width:100%;height:100%;object-fit:contain">
+</div>
                   <h2>${DB.settings.businessName}</h2>
       <p style="text-align:center;margin-top:-10px;margin-bottom:16px">
          <a onclick="window.backToShop()" style="color:var(--primary);font-weight:700;cursor:pointer;font-size:13px">← Back to Shopping</a>
