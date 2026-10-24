@@ -480,6 +480,7 @@ let shopTab = 'shop';
 let shopSubPage = null;
 let pricingShop = null;
 let authTab = 'login';
+let isGuest = false;
 
 function isAdminView(){ return !new URLSearchParams(location.search).get('shop'); }
 function render(){ if(!loggedIn){ renderLogin(); return; } renderAdmin(); }
@@ -1161,8 +1162,9 @@ window.saveSettings = async function(){
    SHOP OWNER APP
    ═══════════════════════════════════════════════════════════ */
 function renderShop(){
-  if(!shopAccount){ renderShopAuth(); return; }
-  const acc = DB.accounts.find(a => a.mobile === shopAccount.mobile);
+  if(!shopAccount && !isGuest){ renderShopAuth(); return; }
+  
+  const acc = shopAccount ? DB.accounts.find(a => a.mobile === shopAccount.mobile) : null;
   if(acc && acc.status === 'Pending'){
     app().innerHTML = `<div class="auth-page"><div class="auth-box" style="text-align:center">
       <div class="auth-logo" style="background:linear-gradient(135deg,#f59e0b,#d97706)">⏳</div>
@@ -1189,17 +1191,21 @@ function renderShop(){
 }
 
 function renderShopShell(cartCount, myOrders, isDark){
+  const shopName = shopAccount ? shopAccount.name : 'Guest User';
+  const subName = shopAccount ? 'Shop Account' : 'Browsing as Guest';
+
   return `
     <div class="overlay" onclick="closeSidebar()"></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <div class="icon">🌿</div>
         <div>
-          <div class="name">${shopAccount.name}</div>
-          <div class="sub">Shop Account</div>
+          <div class="name">${shopName}</div>
+          <div class="sub">${subName}</div>
         </div>
       </div>
-      <nav class="menu">
+            <nav class="menu">
+        ${!shopAccount ? `<a onclick="isGuest=false; renderShopAuth();" style="background:var(--primary-light);color:var(--primary-dark);margin-bottom:8px"><span class="ic">🔐</span>Login to Order</a>` : ''}
         <a class="${shopTab==='shop'?'active':''}" onclick="setShopTab('shop')"><span class="ic">🏠</span>Shop</a>
         <a class="${shopTab==='cart'?'active':''}" onclick="setShopTab('cart')" data-cart-link><span class="ic">🛒</span>My Cart ${cartCount?`<span class="badge-n">${cartCount}</span>`:''}</a>
         <a class="${shopTab==='me'&&!shopSubPage?'active':''}" onclick="setShopTab('me')"><span class="ic">👤</span>My Account</a>
@@ -1220,7 +1226,7 @@ function renderShopShell(cartCount, myOrders, isDark){
           <button class="hamburger" onclick="openSidebar()">☰</button>
           <div>
             <h1 id="shopTitle">${shopTab==='cart'?'My Cart':(shopTab==='me'?(shopSubPage==='orders'?'Order History':'My Account'):'Order Products')}</h1>
-            <div class="sub">${greeting()}, ${shopAccount.name.split(' ')[0]}! 👋</div>
+            <div class="sub">${shopAccount ? greeting() + ', ' + shopAccount.name.split(' ')[0] + '! 👋' : 'Browse our products'}</div>
           </div>
         </div>
         <div class="topbar-actions">
@@ -1530,6 +1536,12 @@ const discountPct = 0;
 window.shopSearch = () => { window._shq = $('shq').value; $('shgrid').innerHTML = shopProductCards(); };
 window.setShopCat = (c) => { shopCat = c; renderShop(); };
 window.shopPlus = (id) => {
+  if(!shopAccount) {
+    toast('Please login to add items to cart');
+    isGuest = false;
+    renderShopAuth();
+    return;
+  }
   shopCart[id] = shopCart[id] || {q:0, unit:'Piece'};
   shopCart[id].q++;
   localStorage.setItem('shop_cart', JSON.stringify(shopCart));
@@ -1675,7 +1687,10 @@ function renderShopAuth(){
   app().innerHTML = `
     <div class="auth-page"><div class="auth-box">
       <div class="auth-logo">🌿</div>
-      <h2>${DB.settings.businessName}</h2>
+            <h2>${DB.settings.businessName}</h2>
+      <p style="text-align:center;margin-top:-10px;margin-bottom:16px">
+         <a onclick="isGuest=true; renderShop();" style="color:var(--primary);font-weight:700;cursor:pointer;font-size:13px">← Continue as Guest</a>
+      </p>
       <p class="sub">${isForgot?'Reset password':(isReset?'Verify identity':'Welcome! Login or register')}</p>
       ${(!isForgot && !isReset) ? `<div class="auth-tabs">
         <button class="${isLogin?'active':''}" onclick="setAuthTab('login')">Login</button>
@@ -1767,7 +1782,8 @@ window.shopRegisterSubmit = async function(){
   else { await saveShopDoc({...shop, name, owner, address: addr}); }
   localStorage.removeItem('shop_account');
   localStorage.removeItem('shop_cart');
-  shopAccount = { name, mobile };
+    isGuest = false;
+  shopAccount = { name: acc.name, mobile: acc.mobile };
   localStorage.setItem('shop_account', JSON.stringify(shopAccount));
   shopCart = {}; shopTab = 'shop'; shopSubPage = null;
   toast(status === 'Approved' ? '✅ Welcome!' : '✅ Submitted');
@@ -1785,6 +1801,7 @@ window.shopLoginSubmit = function(){
   if(acc.status === 'Rejected') return showErr('Account rejected');
   localStorage.removeItem('shop_account');
   localStorage.removeItem('shop_cart');
+    isGuest = false;
   shopAccount = { name: acc.name, mobile: acc.mobile };
   localStorage.setItem('shop_account', JSON.stringify(shopAccount));
   shopCart = {}; shopTab = 'shop'; shopSubPage = null;
@@ -1802,10 +1819,17 @@ window.shopLogout = function(){
   shopSubPage = null;
   authTab = 'login';
   window._resetShop = null;
-  window.location.replace(window.location.pathname + '?shop=1&t=' + Date.now());
+    isGuest = true;
+  renderShop();
 };
 
 window.shopPlaceOrder = async function(){
+  if(!shopAccount) {
+    toast('Please login to place order');
+    isGuest = false;
+    renderShopAuth();
+    return;
+  }
   const items = shopCartItems();
   if(!items.length){ toast('Cart empty'); return; }
   const total = items.reduce((s,x)=>s+x.total,0);
