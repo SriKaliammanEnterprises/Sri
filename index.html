@@ -1217,7 +1217,7 @@ function renderShopShell(cartCount, myOrders, isDark){
         🛒 Cart ${cartCount ? `<span class="cart-num" style="background:var(--danger);color:#fff;font-size:10px;padding:2px 6px;border-radius:999px;font-weight:800">${cartCount}</span>` : ''}
       </a>
       <a onclick="toggleTheme()" style="cursor:pointer;font-size:18px;color:var(--text)">${isDark?'☀️':'🌙'}</a>
-      <a onclick="window.renderShopAuth()" style="color:var(--text);font-weight:600;cursor:pointer">👤 Login</a>
+      <a onclick="window.showLoginScreen()" style="color:var(--text);font-weight:600;cursor:pointer">👤 Login</a>
     `;
 
   return `
@@ -1747,6 +1747,10 @@ window.setAuthTab = (t) => { authTab = t; renderShopAuth(); };
   shopTab = 'shop';
   shopSubPage = null;
   renderShop();
+};
+  window.showLoginScreen = function(){
+  authTab = 'login';
+  renderShopAuth();
 };
   
 window.forgotStep1 = function(){
