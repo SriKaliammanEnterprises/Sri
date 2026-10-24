@@ -1217,7 +1217,7 @@ function renderShopShell(cartCount, myOrders, isDark){
         🛒 Cart ${cartCount ? `<span class="cart-num" style="background:var(--danger);color:#fff;font-size:10px;padding:2px 6px;border-radius:999px;font-weight:800">${cartCount}</span>` : ''}
       </a>
       <a onclick="toggleTheme()" style="cursor:pointer;font-size:18px;color:var(--text)">${isDark?'☀️':'🌙'}</a>
-      <a onclick="renderShopAuth()" style="color:var(--text);font-weight:600;cursor:pointer">👤 Login</a>
+      <a onclick="window.renderShopAuth()" style="color:var(--text);font-weight:600;cursor:pointer">👤 Login</a>
     `;
 
   return `
@@ -1704,7 +1704,7 @@ function renderShopAuth(){
       <div class="auth-logo">🌿</div>
                   <h2>${DB.settings.businessName}</h2>
       <p style="text-align:center;margin-top:-10px;margin-bottom:16px">
-         <a onclick="shopTab='shop'; renderShop();" style="color:var(--primary);font-weight:700;cursor:pointer;font-size:13px">← Back to Shop</a>
+         <a onclick="window.backToShop()" style="color:var(--primary);font-weight:700;cursor:pointer;font-size:13px">← Back to Shop</a>
       </p>
       <p class="sub">${isForgot?'Reset password':(isReset?'Verify identity':'Welcome! Login or register')}</p>
       ${(!isForgot && !isReset) ? `<div class="auth-tabs">
@@ -1743,6 +1743,11 @@ function renderShopAuth(){
     </div></div>`;
 }
 window.setAuthTab = (t) => { authTab = t; renderShopAuth(); };
+  window.backToShop = function(){
+  shopTab = 'shop';
+  shopSubPage = null;
+  renderShop();
+};
   
 window.forgotStep1 = function(){
   const mobile = $('fg_mobile').value.trim();
