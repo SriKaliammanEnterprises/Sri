@@ -1390,7 +1390,7 @@ function renderShopMeContent(){
 }
   
 function renderShopOrdersContent(){
-    document.querySelector('.cartbar')?.remove();
+  document.querySelector('.cartbar')?.remove();
   const myOrders = DB.orders.filter(o => o.mobile === shopAccount.mobile);
   return `
     ${myOrders.length ? myOrders.map(o=>`
