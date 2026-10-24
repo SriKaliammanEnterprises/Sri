@@ -414,7 +414,6 @@ async function loadAllData(){
   DB.shops = sSnap.docs.map(d => ({id: d.id, ...d.data()}));
   DB.orders = oSnap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (b.date||'').localeCompare(a.date||''));
   DB.accounts = aSnap.docs.map(d => ({id: d.id, ...d.data()}));
-  
   if(setSnap.exists()){
     DB.settings = {...DEFAULT_SETTINGS, ...setSnap.data()};
     if(DB.settings.categories) DB.categories = DB.settings.categories;
@@ -481,7 +480,6 @@ let shopAccount = JSON.parse(localStorage.getItem('shop_account')||'null');
 let shopCart = JSON.parse(localStorage.getItem('shop_cart')||'{}');
 let shopCat = 'All';
 let shopTab = 'shop';
-  let isGuest = false;
 let shopSubPage = null;
 let pricingShop = null;
 let authTab = 'login';
@@ -516,7 +514,7 @@ window.doAdminLogin = () => {
   } else toast('❌ Wrong PIN');
 };
   
-  window.forgotAdminPin = function(){
+window.forgotAdminPin = function(){
   const contact = DB.settings.whatsapp || 'the distributor';
   alert('Contact admin to reset PIN.\n\nWhatsApp: ' + contact);
 };
@@ -532,7 +530,8 @@ window.go = (view) => {
   document.querySelector('.overlay')?.classList.remove('show');
   renderAdmin();
 };
-  function renderAdmin(){
+
+function renderAdmin(){
   const views = {
     dashboard: {title:'Dashboard', render: viewDashboard},
     products: {title:'All Products', render: viewProducts},
@@ -1200,29 +1199,6 @@ function renderShop(){
   }, 0);
 }
 
-  // No login required to view the page
-  const cartCount = Object.keys(shopCart).length;
-  const myOrders = shopAccount ? DB.orders.filter(o => o.mobile === shopAccount.mobile) : [];
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-
-  app().innerHTML = renderShopShell(cartCount, myOrders, isDark);
-
-  setTimeout(() => {
-    const content = document.getElementById('shopContent');
-    if(!content) return;
-    
-    // Protect Account/Orders tabs if not logged in
-    if((shopTab === 'me' || shopSubPage === 'orders') && !shopAccount) {
-      renderShopAuth();
-      return;
-    }
-
-    if(shopTab === 'cart'){ content.innerHTML = renderShopCartContent(); }
-    else if(shopSubPage === 'orders'){ content.innerHTML = renderShopOrdersContent(); }
-    else if(shopTab === 'me'){ content.innerHTML = renderShopMeContent(); }
-    else { content.innerHTML = renderShopHomeContent(); shopCartBar(); }
-  }, 0);
-  }
 function renderShopShell(cartCount, myOrders, isDark){
   // Top Right Navigation Buttons
   const navLinks = shopAccount 
@@ -1760,7 +1736,7 @@ function renderShopAuth(){
 }
 window.setAuthTab = (t) => { authTab = t; renderShopAuth(); };
   
-  window.forgotStep1 = function(){
+window.forgotStep1 = function(){
   const mobile = $('fg_mobile').value.trim();
   const msgBox = $('authMsg');
   const showErr = (m) => { msgBox.innerHTML = `<div class="msg msg-err">⚠️ ${m}</div>`; };
@@ -1832,7 +1808,7 @@ window.shopLoginSubmit = function(){
   if(acc.status === 'Rejected') return showErr('Account rejected');
   localStorage.removeItem('shop_account');
   localStorage.removeItem('shop_cart');
-  shopAccount = { name: name, mobile: mobile };
+  shopAccount = { name: acc.name, mobile: acc.mobile };
   localStorage.setItem('shop_account', JSON.stringify(shopAccount));
   shopCart = {}; shopTab = 'shop'; shopSubPage = null;
   toast('✅ Welcome back!');
