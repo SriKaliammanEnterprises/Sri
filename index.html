@@ -414,6 +414,7 @@ async function loadAllData(){
   DB.shops = sSnap.docs.map(d => ({id: d.id, ...d.data()}));
   DB.orders = oSnap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (b.date||'').localeCompare(a.date||''));
   DB.accounts = aSnap.docs.map(d => ({id: d.id, ...d.data()}));
+  
   if(setSnap.exists()){
     DB.settings = {...DEFAULT_SETTINGS, ...setSnap.data()};
     if(DB.settings.categories) DB.categories = DB.settings.categories;
@@ -1524,7 +1525,7 @@ function shopProductCards(){
   const q = (window._shq||'').toLowerCase();
   if(q) list = list.filter(p => (p.name+(p.pack||'')+p.cat).toLowerCase().includes(q));
   if(!list.length) return '<div class="empty" style="grid-column:1/-1"><span class="ico">🔍</span><h3>No products found</h3></div>';
-  const shop = DB.shops.find(s=>s.mobile===shopAccount.mobile);
+  const shop = shopAccount ? DB.shops.find(s=>s.mobile===shopAccount.mobile) : null;
   return list.map(p=>{
     const customPrice = shop?.customPrices?.[p.id];
 const displayPrice = customPrice ?? p.price;
@@ -1655,7 +1656,7 @@ window.closeShopSub = function(){
 };
 
 function shopCartItems(){
-  const shop = DB.shops.find(s=>s.mobile===shopAccount.mobile);
+  const shop = shopAccount ? DB.shops.find(s=>s.mobile===shopAccount.mobile) : null;
   return Object.entries(shopCart).map(([id,e])=>{
     const p = DB.products.find(x=>x.id==id);
     if(!p || !e.q) return null;
@@ -1848,14 +1849,12 @@ window.shopLogout = function(){
   shopSubPage = null;
   authTab = 'login';
   window._resetShop = null;
-    isGuest = true;
   renderShop();
 };
 
 window.shopPlaceOrder = async function(){
   if(!shopAccount) {
     toast('Please login to place order');
-    isGuest = false;
     renderShopAuth();
     return;
   }
