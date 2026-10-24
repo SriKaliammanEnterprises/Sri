@@ -216,7 +216,7 @@ h3{font-size:16px;font-weight:700}
 .menu a .ic{font-size:16px;width:22px;text-align:center;flex-shrink:0}
 .menu a .badge-n{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;padding:2px 8px;border-radius:var(--r-full);font-weight:800}
 .sidebar-footer{margin-top:20px;padding-top:16px;border-top:1px solid var(--border-soft);display:flex;flex-direction:column;gap:8px}
-.main{flex:1;margin-left:var(--sidebar-w);padding:24px 28px;min-width:0;padding-bottom:100px}
+.main{flex:1;margin-left:0;padding:24px 28px;min-width:0;padding-bottom:100px}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
 .topbar-left{display:flex;align-items:center;gap:14px}
 .topbar h1{font-size:24px;font-weight:800}
@@ -1191,60 +1191,60 @@ function renderShop(){
 }
 
 function renderShopShell(cartCount, myOrders, isDark){
-  const shopName = shopAccount ? shopAccount.name : 'Guest User';
-  const subName = shopAccount ? 'Shop Account' : 'Browsing as Guest';
+  // If the user is logged in, show their name, else show "Login"
+  const userDisplay = shopAccount 
+    ? `<span style="font-weight:700;color:var(--primary)">👤 ${shopAccount.name.split(' ')[0]}</span>`
+    : `<a onclick="window.exitGuestMode()" style="color:var(--text);font-weight:600;cursor:pointer">👤 Login</a>`;
+
+  // Show cart only if logged in
+  const cartDisplay = shopAccount 
+    ? `<a onclick="setShopTab('cart')" style="color:var(--text);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;position:relative">
+         🛒 Cart 
+         ${cartCount ? `<span style="background:var(--danger);color:#fff;font-size:10px;padding:2px 6px;border-radius:999px;font-weight:800">${cartCount}</span>` : ''}
+       </a>`
+    : '';
 
   return `
-    <div class="overlay" onclick="closeSidebar()"></div>
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <div class="icon">🌿</div>
-        <div>
-          <div class="name">${shopName}</div>
-          <div class="sub">${subName}</div>
+    <!-- TOP NAVBAR -->
+    <header style="background:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.05);position:sticky;top:0;z-index:50">
+      
+      <!-- Top Row: Logo & Actions -->
+      <div style="max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:16px">
+        
+        <!-- Logo -->
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:32px;height:32px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px">🌿</div>
+          <h1 style="font-size:18px;font-weight:800;color:var(--primary)">${DB.settings.businessName}</h1>
+        </div>
+
+        <!-- Right Side Actions -->
+        <div style="display:flex;align-items:center;gap:20px;font-size:14px">
+          ${userDisplay}
+          ${cartDisplay}
+          <a onclick="toggleTheme()" style="cursor:pointer;font-size:18px;color:var(--text)">${isDark?'☀️':'🌙'}</a>
+          ${shopAccount ? `<a onclick="shopLogout()" style="color:var(--danger);font-weight:700;cursor:pointer">Logout</a>` : ''}
+        </div>
+
+      </div>
+
+      <!-- Bottom Row: Search Bar -->
+      <div style="max-width:1200px;margin:0 auto;padding:0 16px 12px">
+        <div class="searchbar" style="background:var(--bg-soft);border:1px solid var(--border)">
+          <span class="search-icon">🔍</span>
+          <input id="shq" placeholder="Search for products, brands and more..." oninput="shopSearch()">
         </div>
       </div>
-            <nav class="menu">
-        ${!shopAccount ? `<a onclick="window.exitGuestMode()" style="background:var(--primary-light);color:var(--primary-dark);margin-bottom:8px"><span class="ic">🔐</span>Login to Order</a>` : ''}
-        <a class="${shopTab==='shop'?'active':''}" onclick="setShopTab('shop')"><span class="ic">🏠</span>Shop</a>
-        <a class="${shopTab==='cart'?'active':''}" onclick="setShopTab('cart')" data-cart-link><span class="ic">🛒</span>My Cart ${cartCount?`<span class="badge-n">${cartCount}</span>`:''}</a>
-        <a class="${shopTab==='me'&&!shopSubPage?'active':''}" onclick="setShopTab('me')"><span class="ic">👤</span>My Account</a>
-        <div class="menu-group">📦 Orders</div>
-        <a class="${(shopTab==='me' && shopSubPage==='orders')?'active':''}" onclick="openShopSub('orders')"><span class="ic">📋</span>Order History ${myOrders.length?`<span class="badge-n" style="background:var(--primary)">${myOrders.length}</span>`:''}</a>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="theme-toggle" onclick="toggleTheme()">
-          <span style="font-size:18px">${isDark?'☀️':'🌙'}</span>
-          <span>${isDark?'Light mode':'Dark mode'}</span>
-        </div>
-        <a class="menu" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);color:var(--danger);font-weight:600;font-size:13.5px;cursor:pointer" onclick="shopLogout()"><span class="ic">🚪</span>Logout</a>
-      </div>
-    </aside>
-    <div class="main" style="padding-bottom:20px">
-      <div class="topbar">
-        <div class="topbar-left">
-          <button class="hamburger" onclick="openSidebar()">☰</button>
-          <div>
-            <h1 id="shopTitle">${shopTab==='cart'?'My Cart':(shopTab==='me'?(shopSubPage==='orders'?'Order History':'My Account'):'Order Products')}</h1>
-            <div class="sub">${shopAccount ? greeting() + ', ' + shopAccount.name.split(' ')[0] + '! 👋' : 'Browse our products'}</div>
-          </div>
-        </div>
-        <div class="topbar-actions">
-          <button class="btn btn-gray btn-sm" onclick="setShopTab('cart')" style="position:relative">
-            🛒 Cart <span class="cart-num" style="${cartCount?'':'display:none'}">${cartCount||''}</span>
-          </button>
-        </div>
-      </div>
+
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main" style="margin-left:0; padding:16px; max-width:1200px; margin: 0 auto; padding-bottom:100px">
       <div id="shopContent"></div>
     </div>`;
 }
 
 function renderShopHomeContent(){
   return `
-    <div class="searchbar" style="margin-bottom:16px">
-      <span class="search-icon">🔍</span>
-      <input id="shq" placeholder="Search products..." oninput="shopSearch()">
-    </div>
     <div class="chips">
       ${['All',...DB.categories].map(c=>`<button class="chip ${c===shopCat?'active':''}" onclick="setShopCat('${c}')">${c==='All'?'🛍️':(CATEGORY_EMOJI[c]||'📦')} ${c}</button>`).join('')}
     </div>
