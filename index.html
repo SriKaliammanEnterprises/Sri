@@ -1162,7 +1162,6 @@ window.saveSettings = async function(){
    SHOP OWNER APP
    ═══════════════════════════════════════════════════════════ */
 function renderShop(){
-  // We allow entry without login
   const acc = shopAccount ? DB.accounts.find(a => a.mobile === shopAccount.mobile) : null;
   
   if(acc && acc.status === 'Pending'){
@@ -1172,6 +1171,12 @@ function renderShop(){
       <button class="btn btn-gray btn-block" onclick="shopLogout()">Logout</button>
     </div></div>`;
     return;
+  }
+
+  // If not logged in, force the 'shop' tab
+  if(!shopAccount){
+    shopTab = 'shop';
+    shopSubPage = null;
   }
 
   const cartCount = Object.keys(shopCart).length;
@@ -1184,12 +1189,6 @@ function renderShop(){
     const content = document.getElementById('shopContent');
     if(!content) return;
     
-    // If trying to access "Me" or "Orders" without login, force Login page
-    if((shopTab === 'me' || shopSubPage === 'orders') && !shopAccount) {
-      renderShopAuth();
-      return;
-    }
-
     if(shopTab === 'cart'){ content.innerHTML = renderShopCartContent(); }
     else if(shopSubPage === 'orders'){ content.innerHTML = renderShopOrdersContent(); }
     else if(shopTab === 'me'){ content.innerHTML = renderShopMeContent(); }
@@ -1457,6 +1456,7 @@ window.printOrder = function(orderId){
 };
 
 function renderBuyAgain(){
+  if(!shopAccount) return ''; // If not logged in, don't show "Buy Again"
   if(!DB.orders.length) return '';
   const shopOrders = DB.orders.filter(o => o.mobile === shopAccount.mobile);
   if(!shopOrders.length) return '';
