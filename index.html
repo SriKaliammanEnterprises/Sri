@@ -1178,7 +1178,9 @@ function renderShop(){
 
   // If not logged in, force the 'shop' tab
   if(!shopAccount){
-    shopTab = 'shop';
+    if(shopTab === 'me' || shopTab === 'orders'){
+      shopTab = 'shop';
+    }
     shopSubPage = null;
   }
 
@@ -1192,20 +1194,12 @@ function renderShop(){
     const content = document.getElementById('shopContent');
     if(!content) return;
     
-    // Protect Account/Orders tabs if not logged in
-    if((shopTab === 'me' || shopSubPage === 'orders') && !shopAccount) {
-      renderShopAuth();
-      return;
-    }
-    
     if(shopTab === 'cart'){ content.innerHTML = renderShopCartContent(); }
     else if(shopSubPage === 'orders'){ content.innerHTML = renderShopOrdersContent(); }
     else if(shopTab === 'me'){ content.innerHTML = renderShopMeContent(); }
     else { content.innerHTML = renderShopHomeContent(); shopCartBar(); }
   }, 0);
 }
-
-function renderShopShell(cartCount, myOrders, isDark){
 
 function renderShopShell(cartCount, myOrders, isDark){
   // Top Right Navigation Buttons
@@ -1621,6 +1615,12 @@ function updateCardQty(id){
   updateSidebarCartBadge();
 }
 window.setShopTab = (tab) => {
+  // If user clicks 'me' or 'cart' but is NOT logged in, show the login screen
+  if(tab === 'me' && !shopAccount) {
+    renderShopAuth();
+    return;
+  }
+
   shopTab = tab;
   shopSubPage = null;
   renderShop();
