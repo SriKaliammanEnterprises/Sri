@@ -1734,10 +1734,9 @@ function renderShopAuth(){
   const isReset = authTab === 'reset';
   app().innerHTML = `
     <div class="auth-page"><div class="auth-box">
-      <div class="auth-logo" style="background:transparent;padding:0;box-shadow:none">
-  <img src="https://i.ibb.co/5g2x58jT/Sri-Kaliamman-FMCG-Brand-Banner.png" style="width:100%;height:100%;object-fit:contain">
+      <div style="text-align:center;margin-bottom:24px">
+  <img src="https://i.ibb.co/5g2x58jT/Sri-Kaliamman-FMCG-Brand-Banner.png" style="width:100%;max-width:220px;height:auto;object-fit:contain">
 </div>
-                  <h2>${DB.settings.businessName}</h2>
       <p style="text-align:center;margin-top:-10px;margin-bottom:16px">
          <a onclick="window.backToShop()" style="color:var(--primary);font-weight:700;cursor:pointer;font-size:13px">← Back to Shopping</a>
       </p>
