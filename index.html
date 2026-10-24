@@ -294,6 +294,36 @@ h3{font-size:16px;font-weight:700}
   .modal-box{padding:22px}
   .tbl th,.tbl td{padding:10px 8px;font-size:12.5px}
 }
+  /* Make Shop Header smaller on Mobile */
+@media (max-width: 850px) {
+  /* Reduce logo size */
+  header img[style*="height:60px"] {
+    height: 36px !important;
+  }
+  
+  /* Reduce text and icon sizes for Cart, Login, Theme */
+  header .topbar-actions a, 
+  header .topbar-actions span {
+    font-size: 12px !important;
+    gap: 2px !important;
+  }
+  
+  /* Reduce gaps between the top right icons */
+  header .topbar-actions > div {
+    gap: 10px !important;
+  }
+  
+  /* Make the cart badge smaller */
+  header .cart-num {
+    font-size: 9px !important;
+    padding: 1px 4px !important;
+  }
+  
+  /* Reduce padding in the header row */
+  header > div {
+    padding: 8px 12px !important;
+  }
+}
 </style>
 </head>
 <body>
