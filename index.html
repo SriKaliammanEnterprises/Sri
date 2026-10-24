@@ -1371,14 +1371,19 @@ function renderShopMeContent(){
         </div>
         <span style="color:var(--muted);font-size:18px">→</span>
       </div>
-      <div onclick="openShopSub('orders')" class="row-link">
+            <div onclick="openShopSub('orders')" class="row-link">
         <div style="display:flex;align-items:center;gap:14px">
           <div style="width:40px;height:40px;border-radius:12px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:18px">📦</div>
           <div><div style="font-weight:700;font-size:14px">My Orders</div><div class="muted" style="font-size:11.5px">View history</div></div>
         </div>
         <span style="color:var(--muted);font-size:18px">→</span>
       </div>
-              <span style="color:var(--muted);font-size:18px">→</span>
+      <div onclick="shopLogout()" class="row-link">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:40px;height:40px;border-radius:12px;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:18px">🚪</div>
+          <div><div style="font-weight:700;font-size:14px;color:var(--danger)">Logout</div><div class="muted" style="font-size:11.5px">Sign out</div></div>
+        </div>
+        <span style="color:var(--muted);font-size:18px">→</span>
       </div>
       <div onclick="shopLogout()" class="row-link">
         <div style="display:flex;align-items:center;gap:14px">
