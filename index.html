@@ -294,6 +294,12 @@ h3{font-size:16px;font-weight:700}
   .modal-box{padding:22px}
   .tbl th,.tbl td{padding:10px 8px;font-size:12.5px}
 }
+  /* Enlarge Logo on Desktop Only */
+@media (min-width: 851px) {
+  header .topbar-logo-img {
+    height: 60px !important;
+  }
+}
   /* Make Shop Header smaller on Mobile */
 @media (max-width: 850px) {
   /* Reduce logo size */
@@ -1252,7 +1258,7 @@ function renderShopShell(cartCount, myOrders, isDark){
         <!-- Logo -->
         <div style="display:flex;align-items:center">
         <a onclick="setShopTab('shop')" style="cursor:pointer;display:flex;align-items:center">
-          <img src="https://i.ibb.co/5g2x58jT/Sri-Kaliamman-FMCG-Brand-Banner.png" style="height:70px;object-fit:contain">
+          <img src="https://i.ibb.co/5g2x58jT/Sri-Kaliamman-FMCG-Brand-Banner.png" class="topbar-logo-img" style="height:70px;object-fit:contain">
         </div>
 
         <!-- Right Side Actions -->
