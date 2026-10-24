@@ -1192,12 +1192,20 @@ function renderShop(){
     const content = document.getElementById('shopContent');
     if(!content) return;
     
+    // Protect Account/Orders tabs if not logged in
+    if((shopTab === 'me' || shopSubPage === 'orders') && !shopAccount) {
+      renderShopAuth();
+      return;
+    }
+    
     if(shopTab === 'cart'){ content.innerHTML = renderShopCartContent(); }
     else if(shopSubPage === 'orders'){ content.innerHTML = renderShopOrdersContent(); }
     else if(shopTab === 'me'){ content.innerHTML = renderShopMeContent(); }
     else { content.innerHTML = renderShopHomeContent(); shopCartBar(); }
   }, 0);
 }
+
+function renderShopShell(cartCount, myOrders, isDark){
 
 function renderShopShell(cartCount, myOrders, isDark){
   // Top Right Navigation Buttons
