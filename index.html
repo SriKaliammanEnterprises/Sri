@@ -463,10 +463,9 @@ function startRealtime(){
   });
   onSnapshot(collection(db, "products"), (snap) => {
     DB.products = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.name||'').localeCompare(b.name||''));
-    // Only re-render if we are on the shop page and NOT currently loading
-    if(!isAdminView() && document.getElementById('shopContent')) {
-      document.getElementById('shopContent').innerHTML = renderShopHomeContent();
-      if(shopTab === 'shop') shopCartBar();
+    // ONLY re-render if we are on the shop page and the grid exists
+    if(!isAdminView() && document.getElementById('shgrid')) {
+      document.getElementById('shgrid').innerHTML = shopProductCards();
     }
   });
   onSnapshot(collection(db, "accounts"), (snap) => {
@@ -484,7 +483,6 @@ let shopTab = 'shop';
 let shopSubPage = null;
 let pricingShop = null;
 let authTab = 'login';
-let isGuest = false;
 
 function isAdminView(){ return !new URLSearchParams(location.search).get('shop'); }
 function render(){ if(!loggedIn){ renderLogin(); return; } renderAdmin(); }
@@ -1166,8 +1164,8 @@ window.saveSettings = async function(){
    SHOP OWNER APP
    ═══════════════════════════════════════════════════════════ */
 function renderShop(){
-  // If user is logged in but Pending, show Pending screen
   const acc = shopAccount ? DB.accounts.find(a => a.mobile === shopAccount.mobile) : null;
+  
   if(acc && acc.status === 'Pending'){
     app().innerHTML = `<div class="auth-page"><div class="auth-box" style="text-align:center">
       <div class="auth-logo" style="background:linear-gradient(135deg,#f59e0b,#d97706)">⏳</div>
@@ -1176,6 +1174,29 @@ function renderShop(){
     </div></div>`;
     return;
   }
+
+  // If not logged in, force the 'shop' tab
+  if(!shopAccount){
+    shopTab = 'shop';
+    shopSubPage = null;
+  }
+
+  const cartCount = Object.keys(shopCart).length;
+  const myOrders = shopAccount ? DB.orders.filter(o => o.mobile === shopAccount.mobile) : [];
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  app().innerHTML = renderShopShell(cartCount, myOrders, isDark);
+
+  setTimeout(() => {
+    const content = document.getElementById('shopContent');
+    if(!content) return;
+    
+    if(shopTab === 'cart'){ content.innerHTML = renderShopCartContent(); }
+    else if(shopSubPage === 'orders'){ content.innerHTML = renderShopOrdersContent(); }
+    else if(shopTab === 'me'){ content.innerHTML = renderShopMeContent(); }
+    else { content.innerHTML = renderShopHomeContent(); shopCartBar(); }
+  }, 0);
+}
 
   // No login required to view the page
   const cartCount = Object.keys(shopCart).length;
@@ -1737,16 +1758,8 @@ function renderShopAuth(){
     </div></div>`;
 }
 window.setAuthTab = (t) => { authTab = t; renderShopAuth(); };
-  window.enterGuestMode = function(){
-  isGuest = true;
-  shopTab = 'shop';
-  renderShop();
-};
-  window.exitGuestMode = function(){
-  isGuest = false;
-  renderShopAuth();
-};
-window.forgotStep1 = function(){
+  
+  window.forgotStep1 = function(){
   const mobile = $('fg_mobile').value.trim();
   const msgBox = $('authMsg');
   const showErr = (m) => { msgBox.innerHTML = `<div class="msg msg-err">⚠️ ${m}</div>`; };
@@ -1818,7 +1831,7 @@ window.shopLoginSubmit = function(){
   if(acc.status === 'Rejected') return showErr('Account rejected');
   localStorage.removeItem('shop_account');
   localStorage.removeItem('shop_cart');
-  shopAccount = { name: acc.name, mobile: acc.mobile };
+  shopAccount = { name: name, mobile: mobile };
   localStorage.setItem('shop_account', JSON.stringify(shopAccount));
   shopCart = {}; shopTab = 'shop'; shopSubPage = null;
   toast('✅ Welcome back!');
