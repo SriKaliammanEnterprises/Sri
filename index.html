@@ -1296,7 +1296,7 @@ function renderShopHomeContent(){
       <span class="muted" style="font-size:12.5px">${DB.products.length} items</span>
     </div>
 <div class="prod-grid" id="shgrid">${shopProductCards()}</div>
-<div style="height:100px"></div> <!-- Adds space so the cart bar doesn't hide the last row -->    
+<div style="height:120px"></div> <!-- Adds space so the cart bar doesn't hide the last row -->    
     <div style="height:200px"></div>`;
 }
 
@@ -1577,29 +1577,28 @@ window.shopPlus = (id) => {
   shopCart[id] = shopCart[id] || {q:0, unit:'Piece'};
   shopCart[id].q++;
   localStorage.setItem('shop_cart', JSON.stringify(shopCart));
-  
-  // Update the card UI immediately
-  updateCardQty(id);
   updateSidebarCartBadge();
   
-  // If we are on the cart page, re-render the cart list
   if(shopTab === 'cart'){
     document.getElementById('shopContent').innerHTML = renderShopCartContent();
   } else {
-    // Otherwise, update the floating cart bar
+    // This instantly redraws the product grid so the button changes immediately
+    document.getElementById('shgrid').innerHTML = shopProductCards();
     shopCartBar();
   }
 };
+
 window.shopMinus = (id) => {
   if(!shopCart[id]) return;
   shopCart[id].q--;
   if(shopCart[id].q <= 0) delete shopCart[id];
   localStorage.setItem('shop_cart', JSON.stringify(shopCart));
   updateSidebarCartBadge();
+  
   if(shopTab === 'cart'){
     document.getElementById('shopContent').innerHTML = renderShopCartContent();
   } else {
-    updateCardQty(id);
+    document.getElementById('shgrid').innerHTML = shopProductCards();
     shopCartBar();
   }
 };
