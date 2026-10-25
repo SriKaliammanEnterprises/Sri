@@ -1295,7 +1295,8 @@ function renderShopHomeContent(){
       <h3 style="font-size:16px;font-weight:800">📦 All Products</h3>
       <span class="muted" style="font-size:12.5px">${DB.products.length} items</span>
     </div>
-    <div class="prod-grid" id="shgrid">${shopProductCards()}</div>
+<div class="prod-grid" id="shgrid">${shopProductCards()}</div>
+<div style="height:100px"></div> <!-- Adds space so the cart bar doesn't hide the last row -->    
     <div style="height:200px"></div>`;
 }
 
@@ -1573,15 +1574,19 @@ const discountPct = 0;
 window.shopSearch = () => { window._shq = $('shq').value; $('shgrid').innerHTML = shopProductCards(); };
 window.setShopCat = (c) => { shopCat = c; renderShop(); };
 window.shopPlus = (id) => {
-  // Removed the "if(!shopAccount)" login block. Anyone can add.
   shopCart[id] = shopCart[id] || {q:0, unit:'Piece'};
   shopCart[id].q++;
   localStorage.setItem('shop_cart', JSON.stringify(shopCart));
+  
+  // Update the card UI immediately
+  updateCardQty(id);
   updateSidebarCartBadge();
+  
+  // If we are on the cart page, re-render the cart list
   if(shopTab === 'cart'){
     document.getElementById('shopContent').innerHTML = renderShopCartContent();
   } else {
-    updateCardQty(id);
+    // Otherwise, update the floating cart bar
     shopCartBar();
   }
 };
@@ -1605,7 +1610,7 @@ function updateCardQty(id){
   if(!p) return;
   
   // Update main product grid card
-  const card = document.querySelector('.prod[data-id="' + id + '"]');
+    const card = document.querySelector('.prod[data-id="' + id + '"]');
   if(card){
     const qty = shopCart[id]?.q || 0;
     const outOfStock = (p.stock||0) <= 0;
